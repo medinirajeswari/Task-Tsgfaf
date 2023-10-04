@@ -7,10 +7,10 @@ const port = 3000;
 app.use(bodyParser.json());
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'medhini',
-  database: 'pro',
+host:bpg24venmviqi1adrery-mysql.services.clever-cloud.com,
+  user:uoapiuydgtagtu2q,
+  password:LWKKCWTmX6a3F6p47ubs,
+  database:bpg24venmviqi1adrery
 });
 
 db.connect((err) => {
