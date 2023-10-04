@@ -8,7 +8,12 @@ const port = 3000;
 app.use(bodyParser.json());
 app.use(express.json());
 
-
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'medhini',
+  database: 'pro',
+});
 app.listen(3000, () => {
     console.log("Server is running....")
 })
