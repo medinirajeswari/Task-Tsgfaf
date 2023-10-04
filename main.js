@@ -9,10 +9,10 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 const db = mysql.createConnection({
-   host:bpg24venmviqi1adrery-mysql.services.clever-cloud.com,
-  user:uoapiuydgtagtu2q,
-  password:LWKKCWTmX6a3F6p47ubs,
-  database:bpg24venmviqi1adrery
+   host:"bpg24venmviqi1adrery-mysql.services.clever-cloud.com",
+  user:"uoapiuydgtagtu2q",
+  password:"LWKKCWTmX6a3F6p47ubs",
+  database:"bpg24venmviqi1adrery"
 });
 app.listen(3000, () => {
     console.log("Server is running....")
