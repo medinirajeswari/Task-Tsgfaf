@@ -1,0 +1,17 @@
+{
+  "name": "yoga-unity",
+  "version": "1.0.0",
+  "description": "yoga instructor for good health",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "author": "medini",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql": "^2.2.5",
+    "body-parser": "^1.19.0",
+    "express-fileupload": "^1.4.1" 
+  }
+}
