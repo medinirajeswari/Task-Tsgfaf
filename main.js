@@ -7,18 +7,10 @@ const port = 3000;
 
 app.use(bodyParser.json());
 
-const db = mysql.createConnection({
 
-});
-
-db.connect((err) => {
-  if (err) {
-    console.error('Database connection error:', err);
-  } else {
-    console.log('Connected to the database');
-  }
-});
-
+app.listen(PORT, () => {
+    console.log("Server is running....")
+})
 // FOR TESTIMONALS
 app.post('/api/testimonials', (req, res) => {
   const newClass = req.body; 
@@ -248,6 +240,4 @@ db.query(sql, [req.userId], (err, result) => {
 });
 
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+
