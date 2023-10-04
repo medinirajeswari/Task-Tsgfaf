@@ -6,6 +6,7 @@ const port = 3000;
 
 
 app.use(bodyParser.json());
+app.use(express.json());
 
 
 app.listen(3000, () => {
