@@ -2,15 +2,15 @@ const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const app = express();
-const port = 3000;
+
 
 app.use(bodyParser.json());
 
 const db = mysql.createConnection({
-host:bpg24venmviqi1adrery-mysql.services.clever-cloud.com,
-  user:uoapiuydgtagtu2q,
-  password:LWKKCWTmX6a3F6p47ubs,
-  database:bpg24venmviqi1adrery
+host: 'localhost',
+user: 'root',
+password: 'medhini',
+database: 'pro',
 });
 
 db.connect((err) => {
