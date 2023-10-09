@@ -1,12 +1,15 @@
+
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const app = express();
-const port = 3000;
+const cors = require('cors');
+const port = 6000;
 
 
 app.use(bodyParser.json());
 app.use(express.json());
+app.use(cors());
 
 const db = mysql.createConnection({
    host:"bpg24venmviqi1adrery-mysql.services.clever-cloud.com",
@@ -14,7 +17,7 @@ const db = mysql.createConnection({
   password:"LWKKCWTmX6a3F6p47ubs",
   database:"bpg24venmviqi1adrery"
 });
-app.listen(3000, () => {
+app.listen(6000, () => {
     console.log("Server is running....")
 })
 // FOR TESTIMONALS
@@ -260,7 +263,7 @@ app.get("/", (req, res) => {
 app.get("/api/instructors",(req, res)=>{
   const query = 'SELECT * FROM instructors';
 
-  db.query(query, (error, results) => {
+  connection.query(query, (error, results) => {
     if (error) {
       console.error('Error executing query: ' + error);
       res.status(500).send('Error fetching data from MySQL');
@@ -269,17 +272,14 @@ app.get("/api/instructors",(req, res)=>{
 
     // Send the results as a response
     res.json(results);
-  
   });
- 
 });
-
 //get for instructors by Id
 app.get("/api/instructors/id/:id",(req, res) => {
   const instructorsId = req.params.id;
   const query = 'SELECT * FROM instructors WHERE id = ?';
   
-  db.query(query, [instructorsId], (error, results) => {
+  connection.query(query, [instructorsId], (error, results) => {
     if (error) {
       console.error('Error fetching instructors by ID: ' + error);
       res.status(500).send('Error fetching instructors by ID');
@@ -301,7 +301,7 @@ const email = req.params.email;
   // Perform a MySQL query to retrieve the instructor by email
   const query = 'SELECT * FROM instructors WHERE email = ?';
 
-  db.query(query, [email], (error, results) => {
+  connection.query(query, [email], (error, results) => {
     if (error) {
       console.error('Error fetching instructor by email: ' + error);
       res.status(500).send('Error fetching instructor by email');
@@ -310,41 +310,45 @@ const email = req.params.email;
 
     if (results.length === 0) {
       res.status(404).json({ message: 'Instructor not found' });
-    } else {
+    } 
+    else {
       res.json(results[0]);
     }
   });
 });
-
-
-
-
 //post for instructors
-app.post('/api/instructors/add',(req, res)=>{
-  const { name, specialization, bio, email, phone, website, image, reviews, video_intro, teaching_philosophy,upcoiming_events,social_media } = req.body;
+app.post('/api/instructors', (req, res) => {
+  const newClass = req.body;
+  newClass.reviews = JSON.stringify(newClass.reviews);
+  newClass.social_media = JSON.stringify(newClass.social_media);
+  newClass.upcoming_events = JSON.stringify(newClass.upcoming_events);
 
-  const query = 'INSERT INTO instructors ( name, specialization, bio, email, phone, website, image, reviews, video_intro, teaching_philosophy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-  db.query(query, [ name, specialization, bio, email, phone, website, image, reviews, video_intro, teaching_philosophy,upcoiming_events,social_media ], (error, result) => {
+  const sql = 'INSERT INTO instructors SET ?';
+  connection.query(sql, newClass, (error) => {
+    
     if (error) {
-      console.error('Error creating instructor, ' + error);
-      res.status(500).send('Error creating instructor');
-      return;
+      console.error('Error creating instructor:', err);
+      res.status(500).json({ error: 'Error creating instructor' });
+    } else {
+      res.status(201).json({ message: 'instructors created successfully' });
     }
-
-    res.status(201).json({ message: 'instructors created successfully', id: result.insertId });
   });
 });
+
+
+
 
 
 // update instructor
 
 app.put('/api/instructors/update/:id', (req, res) => {
-  const instructorId = req.params.id;
-  const {  name, specialization, bio, email, phone, website, image, reviews, video_intro, teaching_philosophy } = req.body; 
+  const Id = req.params.id;
+  const updatedclass = req.body; 
+  updatedclass.reviews = JSON.stringify(updatedclass.reviews);
+  updatedclass.social_media = JSON.stringify(updatedclass.social_media);
+  updatedclass.upcoming_events = JSON.stringify(updatedclass.upcoming_events);
 
-  
-  const query = 'UPDATE instructors SET  name = ?, specialization = ?, bio = ?, email = ?, phone = ?, website = ?, image = ?, reviews = ?, video_intro = ?, teaching_philosophy = ? WHERE id = ?';
-  db.query(query, [ name, specialization, bio, email, phone, website, image, reviews, video_intro, teaching_philosophy, instructorId], (error, result) => {
+  connection.query('UPDATE instructors SET? WHERE id = ?', [updatedclass, Id], (error, result) => {
     if (error) {
       console.error('Error updating instructor: ' + error);
       res.status(500).send('Error updating instructor');
@@ -361,12 +365,12 @@ app.put('/api/instructors/update/:id', (req, res) => {
 app.delete('/api/instructors/delete/:id', (req, res) => {
   const instructorsId = req.params.id;
   const query = 'DELETE FROM instructors WHERE id = ?';
-  db.query(query, [instructorsId], (error, result) => {
+  connection.query(query, [instructorsId], (error, result) => {
     if (error) {
       console.error('Error deleting instructor: ' + error);
       res.status(500).send('Error deleting instructor');
       return;
-    }
+   } 
 
     res.status(204).send(); // No content, successful deletion
   });
@@ -377,7 +381,7 @@ app.delete('/api/instructors/delete/:id', (req, res) => {
 app.get("/api/events",(req, res)=>{
   const query = 'SELECT * FROM events';
 
-  db.query(query, (error, results) => {
+  connection.query(query, (error, results) => {
     if (error) {
       console.error('Error executing query: ' + error);
       res.status(500).send('Error fetching data from MySQL');
@@ -396,7 +400,7 @@ app.get("/api/events/id/:id",(req, res) => {
   const eventId = req.params.id;
   const query = 'SELECT * FROM events WHERE id = ?';
   
-  db.query(query, [eventId], (error, results) => {
+  connection.query(query, [eventId], (error, results) => {
     if (error) {
       console.error('Error fetching event by ID: ' + error);
       res.status(500).send('Error fetching event by ID');
@@ -417,17 +421,18 @@ app.get("/api/events/id/:id",(req, res) => {
 
 //post for events
 app.post('/api/events/add',(req, res)=>{
-  const { name, discription, date, url, image } = req.body;
-
-  const query = 'INSERT INTO events (name, discription,date,url,image) VALUES (?, ?, ?, ?, ?)';
-  db.query(query, [name, discription,date,url,image], (error, result) => {
+  const newClass = req.body;
+  //newClass.reviews = JSON.stringify(newClass.reviews);
+  //newClass.social_media = JSON.stringify(newClass.social_media);
+  //newClass.upcoming_events = JSON.stringify(newClass.upcoming_events);
+  const sql = 'INSERT INTO events SET ?';
+  connection.query(sql, newClass, (error) => {
     if (error) {
-      console.error('Error creating event: ' + error);
-      res.status(500).send('Error creating event');
-      return;
+      console.error('Error creating event ', error);
+      res.status(500).json({ error: 'Error creating events' });
+    } else {
+      res.status(200).json({ message: 'event created successfully' });
     }
-
-    res.status(201).json({ message: 'event created successfully', id: result.insertId });
   });
 });
   
@@ -438,7 +443,7 @@ app.put('/api/events/update/:id', (req, res) => {
 
   
   const query = 'UPDATE events SET name = ?, discription = ?, date =?, url = ?, image = ? WHERE id = ?';
-  db.query(query, [name, discription, date, url, image, eventId], (error, result) => {
+  connection.query(query, [name, discription, date, url, image, eventId], (error, result) => {
     if (error) {
       console.error('Error updating event: ' + error);
       res.status(500).send('Error updating event');
@@ -455,7 +460,7 @@ app.put('/api/events/update/:id', (req, res) => {
 app.delete('/api/events/delete/:id', (req, res) => {
   const eventId = req.params.id;
   const query = 'DELETE FROM events WHERE id = ?';
-  db.query(query, [eventId], (error, result) => {
+  connection.query(query, [eventId], (error, result) => {
     if (error) {
       console.error('Error deleting instructor: ' + error);
       res.status(500).send('Error deleting instructor');
@@ -471,7 +476,7 @@ app.delete('/api/events/delete/:id', (req, res) => {
 app.get("/api/blogs",(req, res)=>{
   const query = 'SELECT * FROM blogs';
 
-  db.query(query, (error, results) => {
+  connection.query(query, (error, results) => {
     if (error) {
       console.error('Error executing query: ' + error);
       res.status(500).send('Error fetching data from MySQL');
@@ -490,7 +495,7 @@ app.get("/api/blogs/id/:id",(req, res) => {
   const blogsId = req.params.id;
   const query = 'SELECT * FROM blogs WHERE id = ?';
   
-  db.query(query, [blogsId], (error, results) => {
+  connection.query(query, [blogsId], (error, results) => {
     if (error) {
       console.error('Error fetching blog by ID: ' + error);
       res.status(500).send('Error fetching blog by ID');
@@ -512,7 +517,7 @@ app.post('/api/blogs/add',(req, res)=>{
   const { title, discription, date, image } = req.body;
 
   const query = 'INSERT INTO blogs (title, discription,date,image) VALUES (?, ?, ?, ?)';
-  db.query(query, [title, discription,date,image], (error, result) => {
+  connection.query(query, [title, discription,date,image], (error, result) => {
     if (error) {
       console.error('Error creating blog: ' + error);
       res.status(500).send('Error creating blog');
@@ -530,7 +535,7 @@ app.post('/api/blogs/add',(req, res)=>{
 
   
   const query = 'UPDATE blogs SET title = ?, discription = ?, date =?, image = ? WHERE id = ?';
-  db.query(query, [title, discription, date,image, blogId], (error, result) => {
+  connection.query(query, [title, discription, date,image, blogId], (error, result) => {
     if (error) {
       console.error('Error updating blog: ' + error);
       res.status(500).send('Error updating blog');
@@ -545,7 +550,7 @@ app.post('/api/blogs/add',(req, res)=>{
 app.delete('/api/blogs/delete/:id', (req, res) => {
   const blogsId = req.params.id;
   const query = 'DELETE FROM blogs WHERE id = ?';
-  db.query(query, [blogsId], (error, result) => {
+  connection.query(query, [blogsId], (error, result) => {
     if (error) {
       console.error('Error deleting blog: ' + error);
       res.status(500).send('Error deleting blog');
@@ -555,6 +560,14 @@ app.delete('/api/blogs/delete/:id', (req, res) => {
     res.status(204).send(); // No content, successful deletion
   });
 });
+
+
+
+
+
+
+
+
 
 
 
